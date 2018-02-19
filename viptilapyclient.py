@@ -14,8 +14,6 @@ import requests
 import sys
 from json import dumps, loads
 
-# requests.packages.urllib3.exceptions import InsecureRequestWarning
-import requests
 
 requests.packages.urllib3.disable_warnings()
 
@@ -72,8 +70,7 @@ class rest_api_lib:
         url = "https://{}:8443/dataservice/{}".format(self.vmanage_ip, mount_point)
         payload = dumps(payload)
         response = self.session[self.vmanage_ip].post(url=url, data=payload, headers=headers, verify=False)
-        data = response.text
-        return data
+        return response.text
 
     def create_vpn(self, name=None, entries=None):
         """
@@ -82,6 +79,8 @@ class rest_api_lib:
 
         entries:
             Expect a list of strings, each string should be the vpn_id
+
+            To do: Get vpn list and site list first, check
         """
 
         if not name and not entries:
@@ -108,3 +107,72 @@ class rest_api_lib:
 
 
 
+    def create_policy_site_list(self, name=None, entries=None):
+
+        req_payload = {
+            "listId": None,
+            "entries": [],
+            "type": "site",
+            "name": name,
+            "description": "Created by Postman"
+        }
+
+        for site_list in entries:
+            req_payload["entries"].append(
+                {
+                    "siteId": site_list
+                }
+            )
+
+        response = self.post_request('template/policy/list/site', req_payload)
+        return response
+
+
+    def create_policy_topology_hub_and_spoke(self, vpnList=None, hubs=None, spokes=None):
+        resp = self.get_request('template/policy/list/site')
+        site_lists = loads(resp)["data"]
+        site_list_names = {}
+        for site_list in site_lists:
+            name = site_list["name"]
+            listId = site_list["listId"]
+            site_list_names.setdefault(name, listId)
+        for hub in hubs:
+            if not site_list_names.get(hub):
+                raise Exception("hub not found:", hub)
+        for spoke in spokes:
+            if not site_list_names.get(spoke):
+                raise Exception("spoke not found:", spoke)
+
+        resp = self.get_request('template/policy/list/vpn')
+        vpn_lists = loads(resp)["data"]
+        vpn_list_names = {}
+        for vpn_list in vpn_lists:
+            name = vpn_list["name"]
+            listId = vpn_list["listId"]
+            vpn_list_names.setdefault(name, listId)
+        if not vpn_list_names.get(vpnList):
+                raise Exception("vpn not found:", vpnList)
+
+        return site_list_names, vpn_list_names
+
+
+
+        '''
+        req_payload = {
+            "listId": None,
+            "entries": [],
+            "type": "hubAndSpoke",
+            "name": name,
+            "description": "Created by Postman"
+        }
+
+        for site_list in entries:
+            req_payload["entries"].append(
+                {
+                    "siteId": site_list
+                }
+            )
+
+        response = self.post_request('template/policy/definition/hubandspoke', req_payload)
+        return response
+        '''

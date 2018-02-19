@@ -1,21 +1,4 @@
 ---
 username: "admin"
-password: "3FVT6nKPKAH2NdG"
+password: "CkYtyYGsu43XykyJ"
 vmanage_ip: "199.66.188.81"
-
----
-site-list-name: harrison-1
-  - 20
-  - 30
-  - 40
-  - 50
-
-vpn-list: 
-  - 
-
-policy:
-  site-list: harrison-1
-  vpn-list: vpn-1
-  topology: hub
-
-
