@@ -1,0 +1,15 @@
+- hosts: localhost
+  gather_facts: no
+  vars_files:
+    - secrets.yml
+
+  tasks:
+    - name: Create a VPN List
+      create_vpn_list:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        name: "chocker14"
+        description: "Created by Ansible"
+        vpns: [300, 302, 311]
+      register: result
