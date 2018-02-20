@@ -25,9 +25,9 @@ pip install requests
 ```
 ### Step 4 - Create secrets.yml file
 ```
-vmanage_ip: "199.66.188.81"
-username: "admin"
-password: "password"
+vmanage_ip: "<ip address>"
+username: "<username>"
+password: "<password>"
 ```
 ### Step 5 - Run playbook
 ```
