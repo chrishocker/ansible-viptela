@@ -11,5 +11,8 @@
         password: "{{ password }}"
         name: "chocker14"
         description: "Created by Ansible"
-        vpns: [300, 302, 311]
+        vpns:
+          - 300
+          - 301
+          - 302
       register: result
