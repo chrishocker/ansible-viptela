@@ -23,7 +23,7 @@ def main():
     }
 
     # Instantiate Ansible module object
-    module = AnsibleModule(argument_spec=module_args)
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=True)
 
     # Load all the Ansible parameters into local variables\
     vmanage_ip = module.params['vmanage_ip']
@@ -48,6 +48,8 @@ def main():
 
     # If the VPN list does not exist, create it via post
     if not listId:
+        if module.check_mode:
+            module.exit_json(changed=True)
         response = obj.post_request('template/policy/list/vpn', payload=payload)  
         if response.status_code == 200:
             listId = response.json()['listId']
@@ -59,6 +61,8 @@ def main():
         if current_entries == entries:
             module.exit_json(changed=False, msg="No changes needed", listId=listId)
         else:
+            if module.check_mode:
+                module.exit_json(changed=True)
             obj.put_request('template/policy/list/vpn/' + listId, payload=payload)
             module.exit_json(changed=True, msg="Updating list", listId=listId)
 

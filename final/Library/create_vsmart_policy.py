@@ -24,7 +24,7 @@ def main():
     }
 
     # Instantiate Ansible module object
-    module = AnsibleModule(argument_spec=module_args)
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=True)
 
     # Load all the Ansible parameters into local variables\
     vmanage_ip = module.params['vmanage_ip']
@@ -60,16 +60,20 @@ def main():
 
     # If the Policy  does not exist, create it via post
     if not policyId:
-        response = obj.post_request('template/policy/vsmart', payload=payload)  
+        if module.check_mode:
+            module.exit_json(changed=True)
+        response = obj.post_request('template/policy/vsmart', payload=payload)
         if response.status_code == 200:
             module.exit_json(changed=True)
         else:
             module.fail_json(msg="Error", payload=payload)
-    # If the VPN list does exist, compare the VPN entries, and if necessary, update via post        
+    # If the VPN list does exist, compare the VPN entries, and if necessary, update via post      
     if policyId:
         if current_topologyId == topologyId:
             module.exit_json(changed=False, msg="No changes needed")
         else:
+            if module.check_mode:
+                module.exit_json(changed=True)
             obj.put_request('template/policy/vsmart/' + policyId, payload=payload)
             module.exit_json(changed=True, msg="Updating Vsmart Policy")
 

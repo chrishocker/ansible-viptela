@@ -13,7 +13,6 @@
         description: "Created by Ansible"
         vpns:
           - 10
-          - 50
       tags: vpn
 
     - name: Create a Hub Site List

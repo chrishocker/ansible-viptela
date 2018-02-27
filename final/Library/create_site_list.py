@@ -23,7 +23,7 @@ def main():
     }
 
     # Instantiate Ansible module object
-    module = AnsibleModule(argument_spec=module_args, supports_check_mode=True) 
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=True)
 
     # Load all the Ansible parameters into local variables\
     vmanage_ip = module.params['vmanage_ip']

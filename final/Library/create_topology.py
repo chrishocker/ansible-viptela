@@ -25,7 +25,7 @@ def main():
     }
 
     # Instantiate Ansible module object
-    module = AnsibleModule(argument_spec=module_args)
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=True)
 
     # Load all the Ansible parameters into local variables\
     vmanage_ip = module.params['vmanage_ip']
@@ -74,6 +74,8 @@ def main():
     definitionId = obj.get_topology_by_name(name)
     
     if not definitionId:
+        if module.check_mode:
+            module.exit_json(changed=True)
         response = obj.post_request('template/policy/definition/hubandspoke', payload=payload)
         if response.status_code == 200:
             module.exit_json(changed=True)
@@ -84,6 +86,8 @@ def main():
     if current_vpnId == vpn_listId and current_spokeId == spoke_listId and current_hubId == hub_listId:
         module.exit_json(changed=False, msg="No changes needed")
     else:
+        if module.check_mode:
+            module.exit_json(changed=True)
         obj.put_request('template/policy/definition/hubandspoke/' + definitionId, payload=payload)
         module.exit_json(changed=True, msg="Updating Topology", definitionId=definitionId)
 
