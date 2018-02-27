@@ -97,5 +97,6 @@ class rest_api_lib:
             if policy['policyName'] == name:
                 policyId = policy['policyId']
                 topologyId = json.loads(policy['policyDefinition'])['assembly'][0]['definitionId']
-                return policyId, topologyId
-        return None, None
+                isactivated = policy['isPolicyActivated']
+                return policyId, topologyId, isactivated
+        return None, None, None

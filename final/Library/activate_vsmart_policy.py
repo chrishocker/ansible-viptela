@@ -14,13 +14,7 @@ def main():
         "username": {"required": True, "type": "str"},
         "password": {"required": True, "type": "str", "no_log": True},
         "name": {"required": True, "type": "str"},
-        "description": {"required": False, "type": "str"},
-        "topology_name": {"required": True, "type": "str"},
-        "state": {
-            "default": "present",
-            "choices": ['present', 'absent'],
-            "type": 'str'
-        }
+        "activate": {"default": False, "type": "bool"},
     }
 
     # Instantiate Ansible module object
@@ -31,50 +25,32 @@ def main():
     username = module.params['username']
     password = module.params['password']
     name = module.params['name']
-    description = module.params['description']
-    topology_name = module.params['topology_name']
+    activate = module.params['activate']
 
 
     # Instantiate vmanage requests session
     obj = rest_api_lib(vmanage_ip, username, password)
-    # Check if VPN list already exists and get VPN list entries
-    topologyId = obj.get_topology_by_name(topology_name)
 
     # Create requests playload for Post and Put methods
-    payload = {
-        "policyName": name,
-        "policyDescription": description,
-        "policyType": "feature",
-        "policyDefinition": {
-            "assembly": [
-                {
-                    "definitionId": topologyId,
-                    "type": "hubAndSpoke"
-                }
-            ]
-        }
-    }
+    payload = {}
 
     policyId, current_topologyId, isactivated = obj.get_vsmart_policyId_by_name(name)
 
     # If the Policy  does not exist, create it via post
     if not policyId:
-        if module.check_mode:
-            module.exit_json(changed=True)
-        response = obj.post_request('template/policy/vsmart', payload=payload)
-        if response.status_code == 200:
-            module.exit_json(changed=True)
-        else:
-            module.fail_json(msg="Error", payload=payload)
+        module.fail_json(msg="Policy Does Not Exist")
     # If the VPN list does exist, compare the VPN entries, and if necessary, update via post      
     if policyId:
-        if current_topologyId == topologyId:
+        if activate == isactivated:
             module.exit_json(changed=False, msg="No changes needed")
         else:
             if module.check_mode:
                 module.exit_json(changed=True)
-            response = obj.put_request('template/policy/vsmart/' + policyId, payload=payload)
-            module.exit_json(changed=True, msg="Updating Vsmart Policy")
-
+            if activate:
+                response = obj.post_request('template/policy/vsmart/activate/' + policyId, payload=payload)
+                module.exit_json(changed=True, msg="Updating Vsmart Policy")
+            else:
+                response = obj.post_request('template/policy/vsmart/deactivate/' + policyId, payload=payload)
+                module.exit_json(changed=True, msg="Updating Vsmart Policy")
 if __name__ == '__main__':
     main()

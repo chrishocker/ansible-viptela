@@ -31,12 +31,11 @@
         vmanage_ip: "{{ vmanage_ip }}"
         username: "{{ username }}"
         password: "{{ password }}"
-        name: "spokes2"
+        name: "spokes1"
         description: "Created by Ansible"
         sites:
           - 11
           - 12
-          - 13
       tags: sites
      
     - name: Create Hub and Spoke Topology
@@ -48,7 +47,7 @@
         description: "Created by Ansible"
         vpn_list: "vpnlist1"
         hub_site_list: "hubs1"
-        spoke_site_list: "spokes2"
+        spoke_site_list: "spokes1"
       tags: topo
 
     - name: Create vSmart Policy
@@ -59,4 +58,13 @@
         name: "vsmart2"
         description: "Created by Ansible"
         topology_name: "topology1"
-      tags: vmsmart 
+      tags: vsmart
+
+    - name: Activate vSmart Policy
+      activate_vsmart_policy:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        name: "vsmart2"
+        activate: true
+      tags: activate
