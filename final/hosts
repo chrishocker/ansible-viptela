@@ -1,0 +1,4 @@
+vmanage
+
+[all:vars]
+vmanage_ip = 199.66.188.81

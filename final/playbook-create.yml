@@ -1,0 +1,90 @@
+- hosts: localhost
+  gather_facts: no
+  vars_files:
+    - secrets.yml
+  tasks:
+    - set_fact:
+        hub_name: test-hub-9099
+        spoke_name: test-spoke-9099
+        vpn_name: test-vpn-9099
+        prefix_name: test-prefix-9099
+        topo_name: test-topo-9099
+        global_state: present
+    - name: VPN List
+      policy_groups:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        type: "vpn"
+        name: "{{ vpn_name }}"
+        action: "update"
+        state: "{{ global_state }}"
+        entries:
+          - "8251"
+          - "8268"
+          - "8230"
+      register: result
+    - name: Site List
+      policy_groups:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        type: "site"
+        name: "{{ hub_name }}"
+        action: "update"
+        state: "{{ global_state }}"
+        entries:
+          - 8123
+          - "8321"
+          - "8456"
+      register: result
+    - name: Site List
+      policy_groups:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        type: "site"
+        name: "{{ spoke_name }}"
+        action: "update"
+        state: "{{ global_state }}"
+        entries:
+          - "8987"
+          - 8789
+          - "8654"
+      register: result
+    - name: Prefix List
+      policy_groups:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        type: "prefix"
+        name: "{{ prefix_name }}"
+        action: "update"
+        state: "{{ global_state }}"
+        entries:
+          - "11.0.0.0/8"
+          - "11.168.1.0/24"
+      register: result
+    - name: Topology
+      policy_vpn_topology:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        name: "{{ topo_name }}"
+        type: "hubandspoke"
+        vpn: "{{ vpn_name }}"
+        hubs:
+          - "{{ hub_name }}"
+        spokes:
+          - "{{ spoke_name }}"
+        action: "create"
+        state: "{{ global_state }}"
+    - name: Policy
+      policy_apply:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        name: "test_policy"
+        state: "{{ global_state }}"
+        topologies:
+          - hubandspoke: "{{ topo_name }}"
