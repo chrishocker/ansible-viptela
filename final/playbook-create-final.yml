@@ -1,0 +1,70 @@
+- hosts: localhost
+  gather_facts: no
+  vars_files:
+    - secrets.yml
+
+  tasks:
+    - set_fact:
+        hub_name: Hub-10
+        spoke_name: Spoke-10
+        vpn_name: VPN-10
+        prefix_name: Prefix-10
+        topo_name: Topo-10
+        global_state: present
+
+    - name: VPN List
+      policy_groups:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        type: "vpn"
+        name: "{{ vpn_name }}"
+        entries:
+          - "10"
+      register: result
+
+    - name: Hub Site List
+      policy_groups:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        type: "site"
+        name: "{{ hub_name }}"
+        entries:
+          - 10
+      register: result
+
+    - name: Spoke Site List
+      policy_groups:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        type: "site"
+        name: "{{ spoke_name }}"
+        entries:
+          - 11
+          - 12
+          - 13
+      register: result
+
+     - name: Create Hub and Spoke Topology
+      create_topology:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        name: "{{ topo_name }}"
+        description: "Created by Ansible"
+        vpn_list: "{{ vpn_name }}"
+        hub_site_list: "{{ hub_name }}"
+        spoke_site_list: "{{ spoke_name }}"
+      tags: topo
+
+    - name: Create vSmart Policy
+      create_vsmart_policy:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        name: "vsmart2"
+        description: "Created by Ansible"
+        topology_name: "{{ topo_name }}"
+      tags: vmsmart
