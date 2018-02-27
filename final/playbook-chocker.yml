@@ -1,0 +1,63 @@
+- hosts: localhost
+  gather_facts: no
+  vars_files:
+    - secrets.yml
+
+  tasks:
+    - name: Create a VPN List
+      create_vpn_list:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        name: "vpnlist1"
+        description: "Created by Ansible"
+        vpns:
+          - 10
+          - 50
+      tags: vpn
+
+    - name: Create a Hub Site List
+      create_site_list:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        name: "hubs1"
+        description: "Created by Ansible"
+        sites:
+          - 10
+      tags: sites
+
+    - name: Create a Spoke Site List
+      create_site_list:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        name: "spokes2"
+        description: "Created by Ansible"
+        sites:
+          - 11
+          - 12
+          - 13
+      tags: sites
+     
+    - name: Create Hub and Spoke Topology
+      create_topology:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        name: "topology1"
+        description: "Created by Ansible"
+        vpn_list: "vpnlist1"
+        hub_site_list: "hubs1"
+        spoke_site_list: "spokes2"
+      tags: topo
+
+    - name: Create vSmart Policy
+      create_vsmart_policy:
+        vmanage_ip: "{{ vmanage_ip }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        name: "vsmart2"
+        description: "Created by Ansible"
+        topology_name: "topology1"
+      tags: vmsmart 

@@ -66,6 +66,36 @@ class rest_api_lib:
                 return vpn_list['listId'], vpn_list['entries']
         return None, None
 
-    def compare_vpn_list_entries(self, current, updated):
-        if current == updated:
-            return True
+    def get_site_list_by_name(self, name):
+        response = self.get_request('template/policy/list/site')
+        site_lists = response.json()['data']
+        for site_list in site_lists:
+            if site_list['name'] == name:
+                return site_list['listId'], site_list['entries']
+        return None, None
+
+    def get_topology_by_name(self, name):
+        response = self.get_request('template/policy/definition/hubandspoke')
+        topologies = response.json()['data']
+        for topology in topologies:
+            if topology['name'] == name:
+                return topology['definitionId']
+        return None
+
+    def get_topology_details(self, definitionId):
+        response = self.get_request('template/policy/definition/hubandspoke/' + definitionId)
+        definition = response.json()
+        vpn_listId = definition['definition']['vpnList']
+        spoke_listId = definition['definition']['subDefinitions'][0]['spokes'][0]['siteList']
+        hub_listId = definition['definition']['subDefinitions'][0]['spokes'][0]['hubs'][0]['siteList']
+        return vpn_listId, spoke_listId, hub_listId
+
+    def get_vsmart_policyId_by_name(self, name):
+        response = self.get_request('template/policy/vsmart')
+        policies = response.json()['data']
+        for policy in policies:
+            if policy['policyName'] == name:
+                policyId = policy['policyId']
+                topologyId = json.loads(policy['policyDefinition'])['assembly'][0]['definitionId']
+                return policyId, topologyId
+        return None, None
