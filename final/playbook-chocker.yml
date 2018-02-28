@@ -36,6 +36,7 @@
         sites:
           - 11
           - 12
+          - 13
       tags: sites
      
     - name: Create Hub and Spoke Topology
@@ -55,7 +56,7 @@
         vmanage_ip: "{{ vmanage_ip }}"
         username: "{{ username }}"
         password: "{{ password }}"
-        name: "vsmart2"
+        name: "vsmart1"
         description: "Created by Ansible"
         topology_name: "topology1"
       tags: vsmart
@@ -65,6 +66,6 @@
         vmanage_ip: "{{ vmanage_ip }}"
         username: "{{ username }}"
         password: "{{ password }}"
-        name: "vsmart2"
+        name: "vsmart1"
         activate: true
       tags: activate
